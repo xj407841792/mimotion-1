@@ -1,4 +1,22 @@
 # -*- coding: utf8 -*-
+import random
+import time
+from datetime import datetime
+import pytz
+
+tz = pytz.timezone("Asia/Shanghai")
+now = datetime.now(tz)
+start = now.replace(hour=16, minute=30, second=0, microsecond=0)
+end = now.replace(hour=20, minute=0, second=0, microsecond=0)
+
+if not (start <= now <= end):
+    print("不在执行时段，直接退出")
+    exit(0)
+
+delay = random.randint(0, 1800)
+print(f"符合时段，随机等待 {delay} 秒后执行")
+time.sleep(delay)
+
 import math
 import traceback
 from datetime import datetime
