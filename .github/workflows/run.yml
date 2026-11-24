@@ -1,7 +1,7 @@
 name: 刷步数
 on:
   schedule:
-    - cron: '0 8-12 * * *'  # UTC 8~12点 → 北京时间16:00~20:00，每小时触发一次
+    - cron: '0 8-12 * * *'
   workflow_dispatch:
 
 jobs:
@@ -30,19 +30,17 @@ jobs:
           AES_KEY: ${{ secrets.AES_KEY }}
         run: |
           pip3 install requests pytz pycryptodome
-          python3 - <<END
+          python3 - <<'END'
 import random, time
 from datetime import datetime
 import pytz
 tz = pytz.timezone("Asia/Shanghai")
 now = datetime.now(tz)
-# 执行窗口 16:30 ~ 20:00
 start = now.replace(hour=16, minute=30, second=0, microsecond=0)
 end = now.replace(hour=20, minute=0, second=0, microsecond=0)
 if not (start <= now <= end):
     print("不在执行时段，直接退出")
     exit(0)
-# 随机等待 0~30分钟，分散时间防风控
 delay = random.randint(0, 1800)
 print(f"符合时段，随机等待 {delay} 秒后执行")
 time.sleep(delay)
