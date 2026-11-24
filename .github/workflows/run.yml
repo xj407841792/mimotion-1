@@ -1,8 +1,7 @@
 name: 刷步数
-
 on:
   schedule:
-    - cron: '52 8 * * *'
+    - cron: '0 8-12 * * *'  # UTC 8~12点 → 北京时间16:00~20:00，每小时触发一次
   workflow_dispatch:
 
 jobs:
@@ -13,23 +12,41 @@ jobs:
       - name: Checkout codes
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets.PAT }} #此处PAT需要申请，教程详见：README
-#      - name: Update system and install zsh
-#        run: |
-#          sudo -E apt-get -qq update
-#          sudo -E apt-get install zsh -y
-          
+          token: ${{ secrets.PAT }}
+
+      # - name: Update system and install zsh
+      #   run: |
+      #     sudo -E apt-get -qq update
+      #     sudo -E apt-get install zsh -y
+
       - name: 初始化Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.10"
-          
-      - name: 开始
+
+      - name: 时段判断 + 随机延时
         env:
-            CONFIG: ${{ secrets.CONFIG }}
-            AES_KEY: ${{ secrets.AES_KEY }}
+          CONFIG: ${{ secrets.CONFIG }}
+          AES_KEY: ${{ secrets.AES_KEY }}
         run: |
           pip3 install requests pytz pycryptodome
+          python3 - <<END
+import random, time
+from datetime import datetime
+import pytz
+tz = pytz.timezone("Asia/Shanghai")
+now = datetime.now(tz)
+# 执行窗口 16:30 ~ 20:00
+start = now.replace(hour=16, minute=30, second=0, microsecond=0)
+end = now.replace(hour=20, minute=0, second=0, microsecond=0)
+if not (start <= now <= end):
+    print("不在执行时段，直接退出")
+    exit(0)
+# 随机等待 0~30分钟，分散时间防风控
+delay = random.randint(0, 1800)
+print(f"符合时段，随机等待 {delay} 秒后执行")
+time.sleep(delay)
+END
           python3 main.py
 
       - name: persist tokens
