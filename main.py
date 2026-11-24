@@ -2,7 +2,7 @@
 tz = pytz.timezone("Asia/Shanghai")
 now = datetime.now(tz)
 start = now.replace(hour=16, minute=30, second=0, microsecond=0)
-end = now.replace(hour=20, minute=0, second=0, microsecond=0)
+end = now.replace(hour=20, minute=50, second=0, microsecond=0)
 
 if not (start <= now <= end):
     print("不在执行时段，直接退出")
